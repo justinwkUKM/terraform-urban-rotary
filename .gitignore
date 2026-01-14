@@ -1,0 +1,28 @@
+# General
+.DS_Store
+**/.DS_Store
+.agent/
+tfplan
+venv/
+
+# Python (Global)
+**/__pycache__/
+**/*.pyc
+**/.env
+**/.env.*
+
+# Infrastructure (Terraform)
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.backup
+infra/*.tfvars
+infra/.terraform.lock.hcl
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
+# IDE
+.idea/
+.vscode/

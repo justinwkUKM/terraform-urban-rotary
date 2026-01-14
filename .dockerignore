@@ -1,0 +1,7 @@
+terraform.tfstate
+terraform.tfstate.backup
+.terraform/
+.git/
+__pycache__/
+venv/
+*.pyc
