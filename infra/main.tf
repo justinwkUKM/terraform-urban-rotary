@@ -64,6 +64,25 @@ resource "google_project_service" "secretmanager" {
   disable_on_destroy = false
 }
 
+# Enable Firestore API
+resource "google_project_service" "firestore" {
+  service            = "firestore.googleapis.com"
+  disable_on_destroy = false
+}
+
+# ==============================================================================
+# Firestore Database
+# ==============================================================================
+
+resource "google_firestore_database" "database" {
+  project     = var.project_id
+  name        = "(default)" # The default database must be named "(default)"
+  location_id = var.region
+  type        = "FIRESTORE_NATIVE"
+
+  depends_on = [google_project_service.firestore]
+}
+
 # ==============================================================================
 # Artifact Registry
 # ==============================================================================
@@ -218,6 +237,13 @@ resource "google_secret_manager_secret_iam_member" "secret_access" {
   secret_id = google_secret_manager_secret.secrets[each.key].id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+}
+
+# Grant permission to write log entries to Firestore
+resource "google_project_iam_member" "firestore_user" {
+  project = var.project_id
+  role    = "roles/datastore.user" # Permissions to read/write Firestore
+  member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
 }
 
 # ==============================================================================
