@@ -25,6 +25,12 @@ variable "application_secrets" {
   # sensitive = true  <-- Helper: Keys must be known for for_each. Values will be hidden by Secret Manager.
 }
 
+variable "enable_enterprise" {
+  description = "Enable Enterprise features (Redis, VPC, Cloud Armor)"
+  type        = bool
+  default     = false
+}
+
 # ==============================================================================
 # Provider Configuration
 # ==============================================================================
@@ -161,10 +167,8 @@ resource "null_resource" "build_image" {
   }
 
   provisioner "local-exec" {
-    # Provide the exact command to build the image using Cloud Build.
-    # We pass the calculated content-based tag.
-    # Points to ../backend which contains Dockerfile and source code
-    command = "gcloud builds submit --tag ${local.image_uri} ../backend"
+    # call our wrapper script
+    command = "bash build_and_sign.sh ${var.project_id} ${var.region} ${local.image_uri} ${var.enable_enterprise}"
   }
 
   # Dependencies ensuring the Repo and Build API exist before we try to build.
@@ -188,6 +192,14 @@ resource "google_cloud_run_v2_service" "default" {
   # Default is often true to prevent accidental deletion of production services.
   deletion_protection = false
 
+  # Enable Binary Authorization only when enterprise features are enabled
+  dynamic "binary_authorization" {
+    for_each = var.enable_enterprise ? [1] : []
+    content {
+      use_default = true
+    }
+  }
+
   template {
     containers {
       # Reference the image URI computed in locals. 
@@ -210,6 +222,7 @@ resource "google_cloud_run_v2_service" "default" {
           }
         }
       }
+
     }
   }
 

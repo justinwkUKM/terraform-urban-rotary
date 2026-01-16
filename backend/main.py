@@ -3,8 +3,48 @@ import uvicorn
 import datetime
 from fastapi import FastAPI, BackgroundTasks, Request
 from google.cloud import firestore
+from pydantic import BaseModel
+from typing import Optional
+
+# Caching Imports
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.decorator import cache
+from redis import asyncio as aioredis
 
 app = FastAPI()
+
+# ------------------------------------------------------------------------------
+# Redis Cache Initialization (Enterprise Only)
+# ------------------------------------------------------------------------------
+@app.on_event("startup")
+async def startup():
+    redis_host = os.environ.get("REDIS_HOST")
+    if redis_host:
+        print(f"✅ Enterprise Mode: Connecting to Redis at {redis_host}...")
+        try:
+            redis = aioredis.from_url(f"redis://{redis_host}", encoding="utf8", decode_responses=True)
+            FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+            print("✅ Redis Cache Initialized.")
+        except Exception as e:
+            print(f"❌ Failed to connect to Redis: {e}")
+            # Fallback will happen automatically as decorators won't find backend? 
+            # Actually fastapi-cache might fail if not init. 
+            # We need to handle this carefully.
+    else:
+        print("ℹ️ Simple Mode: Running without Redis Cache.")
+        # Init with InMemory or Dummy to prevent decorator errors?
+        # fast-api cache needs init.
+        # We can init an InMemoryBackend for local/simple mode if we want caching,
+        # or just not use the decorator if not needed. 
+        # But decorators are static.
+        # Ideally we use InMemoryBackend for Simple Mode.
+        from fastapi_cache.backends.inmemory import InMemoryBackend
+        FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
+
+
+# Initialize Firestore Client
+# ...
 
 from pydantic import BaseModel
 from typing import Optional
@@ -83,6 +123,7 @@ def health_check():
     return {"status": "ok"}
 
 @app.get("/logs")
+@cache(expire=60) # Cache for 60 seconds
 def get_recent_logs(limit: int = 50):
     """Retrieve the latest API logs from Firestore."""
     try:
