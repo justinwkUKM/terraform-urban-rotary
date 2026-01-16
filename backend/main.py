@@ -255,8 +255,8 @@ def read_item(name: str):
     return {"message": f"Hello {name}"}
 
 @app.get("/health")
-def health_check():
-    return {"status": "ok"}
+async def health_check():
+    return {"status": "ok", "version": "1.0.1", "pipeline": "github-actions"}
 
 @app.get("/logs")
 @cache(expire=60)
