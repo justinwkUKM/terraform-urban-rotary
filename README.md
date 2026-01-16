@@ -41,6 +41,8 @@ This project deploys a **FastAPI** application to **Google Cloud Run** using **T
 - **VPC Connector**: Private network access.
 - **Cloud Armor**: DDoS protection and WAF.
 - **Redis (Memorystore)**: In-memory caching.
+- **Sentinel System**: Covert intrusion detection with deceptive sensors.
+- **Discord Alerting**: Real-time security notifications.
 
 ---
 
@@ -134,6 +136,25 @@ python load_test.py
 - **Git**: `.gitignore` ensures `tfvars`, `.env`, and state files are not committed.
 - **Secret Manager**: Terraform automatically creates Secret Manager resources for every entry in `application_secrets`.
 - **Binary Authorization** (Enterprise): Only cryptographically signed images can be deployed.
+
+---
+
+## 🛡️ Sentinel Security System
+
+A covert security monitoring system that detects threats without revealing itself.
+
+### Key Features
+1. **Monitored Paths**: 40+ endpoints that look like admin panels, configs, or backups but trigger alerts when accessed (e.g., `/.env`, `/admin`).
+2. **Static Responses**: Serves realistic fake content (like fake API keys or SQL dumps) to mislead attackers.
+3. **Pattern Analysis**: Detects SQL injection, XSS, and other attack signatures in requests.
+4. **Discord Alerts**: Sends real-time notifications for high-severity security events.
+
+### Security Events API
+View recorded security events:
+```bash
+curl <service_url>/events
+curl <service_url>/events/stats
+```
 
 ---
 
