@@ -76,6 +76,18 @@ resource "google_project_service" "firestore" {
   disable_on_destroy = false
 }
 
+# Enable IAM Credentials API (Required for WIF)
+resource "google_project_service" "iamcredentials" {
+  service            = "iamcredentials.googleapis.com"
+  disable_on_destroy = false
+}
+
+# Enable STS API (Required for WIF)
+resource "google_project_service" "sts" {
+  service            = "sts.googleapis.com"
+  disable_on_destroy = false
+}
+
 # ==============================================================================
 # Firestore Database
 # ==============================================================================
