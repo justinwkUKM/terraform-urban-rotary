@@ -43,6 +43,7 @@ This project deploys a **FastAPI** application to **Google Cloud Run** using **T
 - **Redis (Memorystore)**: In-memory caching.
 - **Sentinel System**: Covert intrusion detection with deceptive sensors.
 - **Discord Alerting**: Real-time security notifications.
+- **Dedicated Service Account**: Runs as `fastapi-runner` with least-privilege access (only Firestore/Secrets), replacing the default Compute account.
 
 ---
 

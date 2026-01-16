@@ -201,6 +201,7 @@ resource "google_cloud_run_v2_service" "default" {
   }
 
   template {
+    service_account = google_service_account.run_sa.email
     containers {
       # Reference the image URI computed in locals. 
       # Because this URI changes when code changes, Terraform will update the service revision.
@@ -243,20 +244,27 @@ resource "google_cloud_run_v2_service" "default" {
 data "google_project" "project" {
 }
 
+# 1. Create a Dedicated Service Account
+resource "google_service_account" "run_sa" {
+  account_id   = "fastapi-runner"
+  display_name = "Cloud Run Service Account"
+  description  = "Dedicated service account for FastAPI application"
+}
+
 # Grant permission to access ALL created secrets
 resource "google_secret_manager_secret_iam_member" "secret_access" {
   for_each = var.application_secrets
 
   secret_id = google_secret_manager_secret.secrets[each.key].id
   role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+  member    = "serviceAccount:${google_service_account.run_sa.email}"
 }
 
 # Grant permission to write log entries to Firestore
 resource "google_project_iam_member" "firestore_user" {
   project = var.project_id
   role    = "roles/datastore.user" # Permissions to read/write Firestore
-  member  = "serviceAccount:${data.google_project.project.number}-compute@developer.gserviceaccount.com"
+  member  = "serviceAccount:${google_service_account.run_sa.email}"
 }
 
 # ==============================================================================
