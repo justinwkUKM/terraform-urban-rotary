@@ -3,3 +3,4 @@ uvicorn
 google-cloud-firestore
 redis
 fastapi-cache2[redis]
+httpx
