@@ -27,6 +27,9 @@ jobs:
         workload_identity_provider: ${{ env.WIF_PROVIDER }}
         service_account: ${{ env.WIF_SERVICE_ACCOUNT }}
 
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
 

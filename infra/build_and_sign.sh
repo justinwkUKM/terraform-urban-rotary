@@ -11,7 +11,7 @@ echo "🚀 Starting Build for ${IMAGE_URI}..."
 echo "🔒 Enterprise Security Mode: ${ENABLE_ENTERPRISE}"
 
 # 1. Build the image
-gcloud builds submit --tag "${IMAGE_URI}" ../backend
+gcloud builds submit --quiet --tag "${IMAGE_URI}" ../backend
 
 if [ "$ENABLE_ENTERPRISE" = "true" ]; then
     echo "🔏 Enterprise enabled: Signing image for Binary Authorization..."
