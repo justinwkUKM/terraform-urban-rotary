@@ -31,6 +31,12 @@ variable "enable_enterprise" {
   default     = false
 }
 
+variable "skip_build" {
+  description = "Skip Docker image build (for CI where image is built separately)"
+  type        = bool
+  default     = false
+}
+
 # ==============================================================================
 # Provider Configuration
 # ==============================================================================
@@ -171,7 +177,10 @@ locals {
 
 # Resource to trigger the build process.
 # This uses a 'local-exec' provisioner to run gcloud commands on the machine running Terraform.
+# Skipped in CI where the image is built separately by GitHub Actions.
 resource "null_resource" "build_image" {
+  count = var.skip_build ? 0 : 1
+  
   # The trigger ensures this resource is recreated (and thus the command re-run) 
   # whenever the calculated content hash changes.
   triggers = {

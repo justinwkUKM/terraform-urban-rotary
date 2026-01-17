@@ -7,6 +7,7 @@ on:
 env:
   PROJECT_ID: "cloudrunantigravity"
   REGION: "us-central1"
+  REPO_NAME: "my-repo"
   WIF_PROVIDER: "projects/32845630472/locations/global/workloadIdentityPools/github-actions-pool-v1/providers/github-provider"
   WIF_SERVICE_ACCOUNT: "github-actions-deployer@cloudrunantigravity.iam.gserviceaccount.com"
 
@@ -32,6 +33,23 @@ jobs:
       with:
         project_id: ${{ env.PROJECT_ID }}
 
+    - name: Calculate Image Tag
+      id: image
+      run: |
+        # Calculate SHA1 hash of source files (same logic as Terraform)
+        IMAGE_HASH=$(cat backend/*.py backend/Dockerfile backend/requirements.txt | sha1sum | cut -c1-40)
+        IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/fastapi-app:${IMAGE_HASH}"
+        echo "uri=${IMAGE_URI}" >> $GITHUB_OUTPUT
+        echo "📦 Image URI: ${IMAGE_URI}"
+
+    - name: Build and Push Docker Image
+      run: |
+        gcloud builds submit \
+          --project "${{ env.PROJECT_ID }}" \
+          --tag "${{ steps.image.outputs.uri }}" \
+          --quiet \
+          ./backend
+
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
 
@@ -40,7 +58,7 @@ jobs:
       working-directory: ./infra
 
     - name: Terraform Apply
-      run: terraform apply -auto-approve
+      run: terraform apply -auto-approve -var="skip_build=true"
       working-directory: ./infra
       env:
         TF_VAR_project_id: ${{ env.PROJECT_ID }}
