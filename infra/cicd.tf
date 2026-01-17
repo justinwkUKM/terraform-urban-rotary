@@ -18,6 +18,7 @@ resource "google_project_iam_member" "deployer_roles" {
     "roles/storage.admin",                   # Manage GCS (backend state)
     "roles/iam.serviceAccountUser",          # Act as the runtime SA (fastapi-runner)
     "roles/iam.workloadIdentityUser",        # Required for using WIF
+    "roles/iam.workloadIdentityPoolAdmin",   # Manage WIF pools
     "roles/artifactregistry.admin",          # Push Docker images
     "roles/cloudbuild.builds.editor",        # Submit builds
     "roles/cloudbuild.builds.viewer",        # View build logs
