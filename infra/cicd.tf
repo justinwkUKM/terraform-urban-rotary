@@ -17,9 +17,11 @@ resource "google_project_iam_member" "deployer_roles" {
     "roles/run.admin",                  # Deploy Cloud Run services
     "roles/storage.admin",              # Manage GCS (backend state)
     "roles/iam.serviceAccountUser",     # Act as the runtime SA (fastapi-runner)
-    "roles/iam.workloadIdentityUser",   # Required for using WIF - confusingly self-referential but needed
+    "roles/iam.workloadIdentityUser",   # Required for using WIF
     "roles/artifactregistry.admin",     # Push Docker images
     "roles/cloudbuild.builds.editor",   # Submit builds
+    "roles/cloudbuild.builds.viewer",   # View build logs
+    "roles/logging.viewer",             # Stream Cloud Build logs
     "roles/secretmanager.admin",        # Manage secrets
     "roles/datastore.owner",            # Manage Firestore indexes
     "roles/serviceusage.serviceUsageAdmin" # Enable APIs
