@@ -14,17 +14,18 @@ resource "google_service_account" "github_actions" {
 # The deployer needs broad access to manage Cloud Run, Secret Manager, etc.
 resource "google_project_iam_member" "deployer_roles" {
   for_each = toset([
-    "roles/run.admin",                  # Deploy Cloud Run services
-    "roles/storage.admin",              # Manage GCS (backend state)
-    "roles/iam.serviceAccountUser",     # Act as the runtime SA (fastapi-runner)
-    "roles/iam.workloadIdentityUser",   # Required for using WIF
-    "roles/artifactregistry.admin",     # Push Docker images
-    "roles/cloudbuild.builds.editor",   # Submit builds
-    "roles/cloudbuild.builds.viewer",   # View build logs
-    "roles/logging.viewer",             # Stream Cloud Build logs
-    "roles/secretmanager.admin",        # Manage secrets
-    "roles/datastore.owner",            # Manage Firestore indexes
-    "roles/serviceusage.serviceUsageAdmin" # Enable APIs
+    "roles/run.admin",                       # Deploy Cloud Run services
+    "roles/storage.admin",                   # Manage GCS (backend state)
+    "roles/iam.serviceAccountUser",          # Act as the runtime SA (fastapi-runner)
+    "roles/iam.workloadIdentityUser",        # Required for using WIF
+    "roles/artifactregistry.admin",          # Push Docker images
+    "roles/cloudbuild.builds.editor",        # Submit builds
+    "roles/cloudbuild.builds.viewer",        # View build logs
+    "roles/logging.viewer",                  # Stream Cloud Build logs
+    "roles/secretmanager.admin",             # Manage secrets
+    "roles/datastore.owner",                 # Manage Firestore indexes
+    "roles/serviceusage.serviceUsageAdmin",  # Enable APIs
+    "roles/resourcemanager.projectIamAdmin"  # Manage IAM policies
   ])
   
   project = var.project_id
