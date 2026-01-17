@@ -22,7 +22,7 @@ variable "region" {
 variable "application_secrets" {
   description = "Map of secrets to be stored in Secret Manager and injected as env vars"
   type        = map(string)
-  # sensitive = true  <-- Helper: Keys must be known for for_each. Values will be hidden by Secret Manager.
+  default     = {}  # Allow empty in CI (secrets managed separately or locally via tfvars)
 }
 
 variable "enable_enterprise" {
