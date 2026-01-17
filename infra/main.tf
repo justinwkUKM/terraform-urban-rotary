@@ -163,16 +163,17 @@ locals {
   # This ensures a rebuild is triggered if dependencies or the build definition changes.
   all_files = setunion(local.source_files, ["Dockerfile", "requirements.txt"])
   
-  # Calculate a single SHA1 hash of all tracked files.
-  # logical: If the content of any file changes, this hash changes, triggering the null_resource.
-  dir_sha1 = sha1(join("", [for f in local.all_files : filesha1("${path.module}/../backend/${f}")]))
+  # Calculate a single SHA256 hash of all tracked files.
+  # PQC Hardening: SHA-256 provides 128-bit post-quantum security vs SHA-1's deprecated status.
+  # If the content of any file changes, this hash changes, triggering the null_resource.
+  dir_sha256 = sha256(join("", [for f in local.all_files : filesha256("${path.module}/../backend/${f}")]))
   
-  # Define the image tag using the content hash. 
+  # Define the image tag using the content hash (first 40 chars for compatibility).
   # This ensures unique, immutable tags for every code change.
-  image_tag = "fastapi-app:${local.dir_sha1}"
+  image_tag = "fastapi-app:${substr(local.dir_sha256, 0, 40)}"
   
   # The full URI for the image in Artifact Registry.
-  image_uri = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}/fastapi-app:${local.dir_sha1}"
+  image_uri = "${var.region}-docker.pkg.dev/${var.project_id}/${google_artifact_registry_repository.repo.repository_id}/fastapi-app:${substr(local.dir_sha256, 0, 40)}"
 }
 
 # Resource to trigger the build process.
@@ -184,7 +185,7 @@ resource "null_resource" "build_image" {
   # The trigger ensures this resource is recreated (and thus the command re-run) 
   # whenever the calculated content hash changes.
   triggers = {
-    dir_sha1 = local.dir_sha1
+    dir_sha256 = local.dir_sha256
   }
 
   provisioner "local-exec" {

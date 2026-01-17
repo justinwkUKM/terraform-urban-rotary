@@ -36,7 +36,8 @@ jobs:
     - name: Calculate Image Tag
       id: image
       run: |
-        IMAGE_HASH=$(cat backend/*.py backend/Dockerfile backend/requirements.txt | sha1sum | cut -c1-40)
+        # PQC Hardening: SHA-256 provides 128-bit post-quantum security (matches Terraform)
+        IMAGE_HASH=$(cat backend/*.py backend/Dockerfile backend/requirements.txt | sha256sum | cut -c1-40)
         IMAGE_URI="${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO_NAME}/fastapi-app:${IMAGE_HASH}"
         echo "uri=${IMAGE_URI}" >> $GITHUB_OUTPUT
         echo "📦 Image URI: ${IMAGE_URI}"
