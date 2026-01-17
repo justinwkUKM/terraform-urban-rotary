@@ -85,3 +85,9 @@ jobs:
       working-directory: ./infra
       env:
         TF_VAR_project_id: ${{ env.PROJECT_ID }}
+        # Pass secrets as JSON map to Terraform
+        TF_VAR_application_secrets: |
+          {
+            "TAVILY_API_KEY": "${{ secrets.TF_VAR_TAVILY_API_KEY }}",
+            "DISCORD_WEBHOOK_URL": "${{ secrets.TF_VAR_DISCORD_WEBHOOK_URL }}"
+          }
