@@ -94,6 +94,12 @@ resource "google_project_service" "sts" {
   disable_on_destroy = false
 }
 
+# Enable Cloud Resource Manager API (Required for IAM management in CI)
+resource "google_project_service" "cloudresourcemanager" {
+  service            = "cloudresourcemanager.googleapis.com"
+  disable_on_destroy = false
+}
+
 # ==============================================================================
 # Firestore Database
 # ==============================================================================
